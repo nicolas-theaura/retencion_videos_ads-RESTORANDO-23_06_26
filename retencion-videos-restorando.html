@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retención de Video · Restorando · Junio 2026</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #09090f;
+      --bg2:      #0d0e1c;
+      --card:     #111220;
+      --card2:    #0e0f1d;
+      --border:   #1a1c35;
+      --border2:  #222440;
+      --text:     #e8eaf6;
+      --text2:    #7b85b0;
+      --text3:    #3e4465;
+      --green:    #22c55e;
+      --green-bg: rgba(34,197,94,.10);
+      --amber:    #f59e0b;
+      --amber-bg: rgba(245,158,11,.10);
+      --red:      #ef4444;
+      --red-bg:   rgba(239,68,68,.10);
+      --blue:     #60a5fa;
+      --purple:   #a78bfa;
+      --accent:   #f97316;
+      --accent2:  #fb923c;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ────────────────────────────────────────────────── */
+    .header {
+      background: linear-gradient(160deg,#1c1008 0%,#09090f 65%);
+      border-bottom: 1px solid rgba(249,115,22,.15);
+      padding: 40px 48px 34px;
+    }
+    .header-inner { max-width: 1200px; margin: 0 auto; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(249,115,22,.10);
+      border: 1px solid rgba(249,115,22,.22);
+      border-radius: 20px;
+      padding: 4px 14px 4px 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; color: #fb923c;
+      margin-bottom: 16px;
+    }
+    .badge i { width:6px; height:6px; border-radius:50%; background:#f97316; display:inline-block; }
+
+    .header h1 {
+      font-size: clamp(22px,3.5vw,36px);
+      font-weight: 800; letter-spacing: -.03em; color: #fff8f0;
+      margin-bottom: 7px;
+    }
+    .header p { color: var(--text2); font-size: 15px; max-width: 580px; }
+
+    .chips { display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; }
+    .chip {
+      display:flex; align-items:center; gap:6px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border2);
+      border-radius: 8px; padding: 5px 12px;
+      font-size: 12px; color: var(--text2);
+    }
+    .chip-dot { width:5px; height:5px; border-radius:50%; background:var(--accent); }
+
+    /* ── MAIN ───────────────────────────────────────────────────── */
+    .main { max-width:1200px; margin:0 auto; padding:32px 48px 80px; }
+
+    @media (max-width:860px) {
+      .main { padding:20px 18px 60px; }
+      .header { padding:28px 18px 26px; }
+    }
+
+    .info-note {
+      display:flex; align-items:flex-start; gap:10px;
+      padding:12px 16px;
+      background:rgba(96,165,250,.06);
+      border:1px solid rgba(96,165,250,.16);
+      border-radius:10px;
+      font-size:12.5px; color:var(--text2); line-height:1.55;
+      margin-bottom:26px;
+    }
+    .info-note svg { flex-shrink:0; margin-top:2px; }
+    .info-note strong { color:#93c5fd; }
+
+    .legend {
+      display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+      padding:12px 18px;
+      background:var(--card); border:1px solid var(--border); border-radius:10px;
+      margin-bottom:28px; font-size:12px;
+    }
+    .legend-lbl { font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text3); }
+    .legend-item { display:flex; align-items:center; gap:6px; color:var(--text2); }
+    .ld { width:9px; height:9px; border-radius:2px; }
+    .ld-g { background:var(--green); } .ld-a { background:var(--amber); } .ld-r { background:var(--red); }
+
+    /* ── GRID ───────────────────────────────────────────────────── */
+    .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:24px; }
+    @media (max-width:800px) { .grid { grid-template-columns:1fr; } }
+
+    /* ── CARD ───────────────────────────────────────────────────── */
+    .card {
+      background:var(--card); border:1px solid var(--border); border-radius:18px;
+      overflow:hidden; transition:border-color .2s,transform .2s;
+    }
+    .card:hover { border-color:var(--border2); transform:translateY(-2px); }
+
+    .vplayer {
+      position:relative; width:100%; padding-top:56.25%;
+      background:var(--bg2); overflow:hidden;
+    }
+    .vplayer iframe { position:absolute; top:0;left:0; width:100%;height:100%; border:none; }
+
+    .cbody { padding:18px 20px 22px; }
+
+    .crow { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+    .cname { font-size:16px; font-weight:800; letter-spacing:-.01em; color:#fff8f0; }
+    .ctag {
+      font-size:10px; font-weight:700;
+      background:rgba(249,115,22,.12); color:#fb923c;
+      border:1px solid rgba(249,115,22,.22); border-radius:5px; padding:2px 9px;
+    }
+    .cmeta { display:flex; gap:14px; margin-bottom:4px; }
+    .cmeta-i {
+      display:flex; align-items:center; gap:5px;
+      font-size:11.5px; color:var(--text3);
+    }
+    .hook-line {
+      font-size:12px; color:var(--text2); font-style:italic;
+      margin:10px 0 18px;
+      padding:7px 12px;
+      background:rgba(255,255,255,.025);
+      border-left:2px solid var(--border2); border-radius:0 6px 6px 0;
+    }
+
+    /* ── FUNNEL ─────────────────────────────────────────────────── */
+    .f-head {
+      font-size:10px; font-weight:800; text-transform:uppercase;
+      letter-spacing:.10em; color:var(--text3); margin-bottom:12px;
+    }
+
+    .f-row { display:flex; align-items:center; gap:8px; margin-bottom:3px; }
+    .f-lbl {
+      width:82px; flex-shrink:0;
+      font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text3);
+      line-height:1.3;
+    }
+    .f-track {
+      flex:1; height:28px;
+      background:rgba(255,255,255,.035); border-radius:6px; overflow:hidden;
+    }
+    .f-bar {
+      height:100%; border-radius:6px; min-width:32px;
+      display:flex; align-items:center; padding:0 10px;
+      transition:width 1.1s cubic-bezier(.4,0,.2,1);
+    }
+    .f-num { font-size:12.5px; font-weight:700; color:rgba(255,255,255,.9); white-space:nowrap; }
+    .f-pct { width:38px; flex-shrink:0; font-size:11px; color:var(--text3); text-align:right; }
+
+    .b-base  { background:linear-gradient(90deg,#161830,#20233f); }
+    .b-green { background:linear-gradient(90deg,#14532d,#22c55e); }
+    .b-amber { background:linear-gradient(90deg,#92400e,#f59e0b); }
+    .b-red   { background:linear-gradient(90deg,#7f1d1d,#ef4444); }
+
+    .f-conn {
+      display:flex; align-items:center; gap:8px;
+      margin:4px 0; padding-left:90px;
+    }
+    .f-dashes { display:flex; flex-direction:column; gap:2px; opacity:.2; }
+    .f-dashes div { width:2px; height:4px; background:#fff; border-radius:1px; }
+
+    .f-badge {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:3px 10px; border-radius:20px;
+      font-size:11.5px; font-weight:800;
+    }
+    .fb-g { background:var(--green-bg); color:var(--green); border:1px solid rgba(34,197,94,.2); }
+    .fb-a { background:var(--amber-bg); color:var(--amber); border:1px solid rgba(245,158,11,.2); }
+    .fb-r { background:var(--red-bg);   color:var(--red);   border:1px solid rgba(239,68,68,.2); }
+
+    .f-conn-lbl { font-size:10.5px; color:var(--text3); font-style:italic; }
+
+    /* stats */
+    .stats {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:6px;
+      margin-top:14px; padding-top:14px; border-top:1px solid var(--border);
+    }
+    .stat { text-align:center; }
+    .stat-v { font-size:17px; font-weight:800; letter-spacing:-.02em; color:#fff8f0; }
+    .stat-l { font-size:9.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--text3); margin-top:1px; }
+
+    /* ── SUMMARY ────────────────────────────────────────────────── */
+    .summary { margin-top:52px; }
+    .summary-title { font-size:19px; font-weight:800; letter-spacing:-.02em; margin-bottom:20px; color:#fff8f0; }
+    .ins-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+    @media (max-width:640px) { .ins-grid { grid-template-columns:1fr; } }
+
+    .ins-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; }
+    .ins-tag {
+      display:inline-block; font-size:10px; font-weight:800;
+      text-transform:uppercase; letter-spacing:.07em;
+      border-radius:5px; padding:3px 10px; margin-bottom:10px;
+    }
+    .it-r { background:var(--red-bg); color:var(--red); }
+    .it-g { background:var(--green-bg); color:var(--green); }
+    .it-a { background:var(--amber-bg); color:var(--amber); }
+    .it-b { background:rgba(96,165,250,.09); color:var(--blue); }
+    .it-o { background:rgba(249,115,22,.09); color:#fb923c; }
+
+    .ins-card h4 { font-size:14.5px; font-weight:800; color:#fff8f0; margin-bottom:8px; line-height:1.3; }
+    .ins-card p { font-size:12.5px; color:var(--text2); line-height:1.65; }
+
+    .footer {
+      border-top:1px solid var(--border);
+      padding:18px 48px;
+      font-size:11px; color:var(--text3);
+      display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+    }
+    @media (max-width:860px) { .footer { padding:16px 18px; } }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="badge"><i></i>Restorando · Software para Restaurantes</div>
+    <h1>¿Dónde estamos perdiendo a las personas?</h1>
+    <p>Análisis de retención por cuartil en videos de generación de leads por WhatsApp</p>
+    <div class="chips">
+      <div class="chip"><span class="chip-dot"></span>4 videos · Junio 2026</div>
+      <div class="chip"><span class="chip-dot"></span>Campaña ABO · WhatsApp</div>
+      <div class="chip"><span class="chip-dot"></span>Fuente: Meta Ads · Exportación oficial</div>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="info-note">
+    <svg width="16" height="16" fill="none" stroke="#60a5fa" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:2px">
+      <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+    </svg>
+    <span>Datos de retención exportados directamente de Meta Ads (jun 1 – jun 23, 2026). Campaña: <strong>RESTORANDO | Conversión - Generación de CP - ABO - WhatsApp</strong>. Conversiones = conversaciones iniciadas por WhatsApp en 7 días.</span>
+  </div>
+
+  <div class="legend">
+    <span class="legend-lbl">Referencias</span>
+    <div class="legend-item"><div class="ld ld-g"></div>Buen resultado (&gt;60% retención entre etapas)</div>
+    <div class="legend-item"><div class="ld ld-a"></div>Resultado promedio (40–60%)</div>
+    <div class="legend-item"><div class="ld ld-r"></div>Caída significativa (&lt;40%)</div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="summary">
+    <div class="summary-title">Lo que nos dice la data para los próximos videos</div>
+    <div class="ins-grid">
+
+      <div class="ins-card">
+        <div class="ins-tag it-g">🟢 Mejor hook del grupo</div>
+        <h4>PublicaciónIG frena el scroll mejor que todos: 21% de hook rate</h4>
+        <p>De cada 100 personas que ven el anuncio, 21 llegan al primer cuarto del video — el doble que el promedio del grupo. La publicación ya tenía tracción orgánica en IG, lo que probablemente genera más confianza al verla como anuncio. El problema está después: solo el 33% de quienes llegan al 75% terminan el video. El final es donde se pierde la gente.</p>
+      </div>
+
+      <div class="ins-card">
+        <div class="ins-tag it-r">🔴 Caída severa en primer tramo</div>
+        <h4>PostIG pierde el 60% de los espectadores entre el 25% y el 50%</h4>
+        <p>Es el peor resultado de P25→P50 del grupo (39.6%). Las personas que frenan el scroll y ven el primer tramo no encuentran razón para continuar. Puede ser que el video arranque fuerte visualmente pero no logre conectar con el problema del restaurante a tiempo. El gancho no está cumpliendo su promesa más allá de los primeros segundos.</p>
+      </div>
+
+      <div class="ins-card">
+        <div class="ins-tag it-g">🟢 Mejor retención en tramo final</div>
+        <h4>Contenido 2 y AD2: retienen bien a partir del 50% del video</h4>
+        <p>Contenido 2 retiene 68.5% entre P50 y P75, y 68.2% entre P75 y P100. AD2 hace lo mismo con 64.6% en el último cuarto. Estos dos formatos logran mantener el interés a lo largo de todo el video. El problema de ambos es el volumen: tienen mucho menos impresiones que los dos primeros, por lo que la data tiene menos peso estadístico.</p>
+      </div>
+
+      <div class="ins-card">
+        <div class="ins-tag it-o">💡 Para el próximo video</div>
+        <h4>Combinar: hook de publicación existente + cuerpo que sostenga la atención</h4>
+        <p>La PublicaciónIG fue el contenido que mejor frena el scroll. AD2 y Contenido 2 demuestran que ciertos formatos retienen bien en el tramo medio y final. El próximo video debería arrancar con un momento real de un restaurante (testimonio, behind-the-scenes, problema reconocible) y mantener el ritmo visual constante hasta el CTA — sin slides de texto, sin transiciones largas.</p>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <span>Restorando · Análisis de Retención de Video · Junio 2026</span>
+  <span>Meta Ads · Cuenta act_1818291169103573 · Campaña ABO WhatsApp</span>
+</footer>
+
+<script>
+const DRIVE_IDS = {
+  postIG:        "1iMZwB7lwi3wOmgmaFyoGnkYlTOAFqKCy",
+  publicacionIG: "1mrGVUa_I-tIY8dWWsK_Puvq-7uBGWy4d",
+  ad2:           "1C7lpTqyLL4DqOtTZZP3Jt991aOdSJWkY",
+  contenido2:    "1kUcw8-1SgaQ5KhKrHPI00obrRfwVhz1M"
+};
+
+const ADS = [
+  {
+    id: "postIG",
+    name: "PostIG",
+    tag: "04/06/26",
+    hookDesc: "Publicación de IG del 4 de junio",
+    impressions: 23035,
+    p25: 2313, p50: 916, p75: 565, p100: 354,
+    conversations: 31,
+    spend: 147606, cpl: 4762
+  },
+  {
+    id: "publicacionIG",
+    name: "PublicaciónIG",
+    tag: "19/03/26",
+    hookDesc: "Publicación de IG del 19 de marzo",
+    impressions: 14369,
+    p25: 3022, p50: 1456, p75: 767, p100: 254,
+    conversations: 14,
+    spend: 76236, cpl: 5445
+  },
+  {
+    id: "ad2",
+    name: "AD2",
+    tag: null,
+    hookDesc: "Video creativo AD2",
+    impressions: 3047,
+    p25: 418, p50: 175, p75: 96, p100: 62,
+    conversations: 5,
+    spend: 15169, cpl: 3034
+  },
+  {
+    id: "contenido2",
+    name: "Contenido 2",
+    tag: "Junio",
+    hookDesc: "Video creativo Contenido 2 — junio 2026",
+    impressions: 2189,
+    p25: 231, p50: 124, p75: 85, p100: 58,
+    conversations: 1,
+    spend: 14475, cpl: 14475
+  }
+];
+
+// ─── helpers ──────────────────────────────────────────────────────────
+const fmt = n => n.toLocaleString("es-AR");
+const pct = (a,b) => b===0 ? "0" : (Math.round(a/b*1000)/10).toFixed(1);
+const minW = (n,max) => Math.max(n/max*100, 4).toFixed(1);
+
+function fmtSpend(n) {
+  if (n>=1000000) return "$"+(n/1000000).toFixed(1)+"M";
+  if (n>=100000)  return "$"+Math.round(n/1000)+"K";
+  return "$"+fmt(n);
+}
+
+function stepColor(rate) {
+  if (rate >= 60) return "g";
+  if (rate >= 40) return "a";
+  return "r";
+}
+function hookColor(rate) {
+  if (rate >= 15) return "g";
+  if (rate >= 10) return "a";
+  return "r";
+}
+function icon(c) { return c==="g" ? "✓" : c==="a" ? "≈" : "↓"; }
+
+function buildCard(ad) {
+  const driveId = DRIVE_IDS[ad.id] || "";
+
+  const hookRate = parseFloat(pct(ad.p25, ad.impressions));
+  const r25_50   = parseFloat(pct(ad.p50, ad.p25));
+  const r50_75   = parseFloat(pct(ad.p75, ad.p50));
+  const r75_100  = parseFloat(pct(ad.p100, ad.p75));
+  const rConv    = parseFloat(pct(ad.conversations, ad.p100));
+
+  const hc  = hookColor(hookRate);
+  const c25 = stepColor(r25_50);
+  const c50 = stepColor(r50_75);
+  const c75 = stepColor(r75_100);
+  const cCV = rConv >= 12 ? "g" : rConv >= 5 ? "a" : "r";
+
+  const max = ad.impressions;
+  const w1  = 100;
+  const w2  = minW(ad.p25, max);
+  const w3  = minW(ad.p50, max);
+  const w4  = minW(ad.p75, max);
+  const w5  = minW(ad.p100, max);
+  const w6  = minW(ad.conversations, max);
+
+  const videoEl = driveId
+    ? `<iframe src="https://drive.google.com/file/d/${driveId}/preview?autoplay=0" allow="autoplay" allowfullscreen></iframe>`
+    : `<div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#13152a,#09090f)">
+        <div style="color:#3e4465;font-size:12px">Video sin configurar</div>
+      </div>`;
+
+  // Nota de muestra pequeña para Contenido 2
+  const sampleNote = ad.id === "contenido2"
+    ? `<div style="font-size:10.5px;color:#f59e0b;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.18);border-radius:6px;padding:5px 10px;margin-bottom:14px">
+        ⚠️ Solo 1 conversación registrada — muestra muy pequeña, los porcentajes de conversión no son concluyentes
+      </div>` : "";
+
+  return `
+  <div class="card">
+    <div class="vplayer">${videoEl}</div>
+    <div class="cbody">
+      <div class="crow">
+        <div class="cname">${ad.name}</div>
+        ${ad.tag ? `<div class="ctag">${ad.tag}</div>` : ""}
+      </div>
+      <div class="cmeta">
+        <div class="cmeta-i">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          ${fmt(ad.impressions)} impresiones
+        </div>
+        <div class="cmeta-i">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          ${fmtSpend(ad.spend)} ARS
+        </div>
+      </div>
+      <div class="hook-line">🎬 ${ad.hookDesc}</div>
+
+      ${sampleNote}
+
+      <div class="f-head">Retención por cuartil del video</div>
+
+      <div class="f-row">
+        <div class="f-lbl">Impresiones</div>
+        <div class="f-track"><div class="f-bar b-base" style="width:${w1}%"><span class="f-num">${fmt(ad.impressions)}</span></div></div>
+        <div class="f-pct">100%</div>
+      </div>
+
+      <div class="f-conn">
+        <div class="f-dashes"><div></div><div></div><div></div></div>
+        <div class="f-badge fb-${hc}">${icon(hc)} HOOK: ${hookRate}% frenó el scroll</div>
+      </div>
+
+      <div class="f-row">
+        <div class="f-lbl">25% del video</div>
+        <div class="f-track"><div class="f-bar b-${hc}" style="width:${w2}%"><span class="f-num">${fmt(ad.p25)}</span></div></div>
+        <div class="f-pct">${pct(ad.p25,ad.impressions)}%</div>
+      </div>
+
+      <div class="f-conn">
+        <div class="f-dashes"><div></div><div></div><div></div></div>
+        <div class="f-badge fb-${c25}">${icon(c25)} ${r25_50}% continuó</div>
+        <div class="f-conn-lbl">de los que llegaron al 25%</div>
+      </div>
+
+      <div class="f-row">
+        <div class="f-lbl">50% del video</div>
+        <div class="f-track"><div class="f-bar b-${c25}" style="width:${w3}%"><span class="f-num">${fmt(ad.p50)}</span></div></div>
+        <div class="f-pct">${pct(ad.p50,ad.impressions)}%</div>
+      </div>
+
+      <div class="f-conn">
+        <div class="f-dashes"><div></div><div></div><div></div></div>
+        <div class="f-badge fb-${c50}">${icon(c50)} ${r50_75}% continuó</div>
+        <div class="f-conn-lbl">de los que llegaron al 50%</div>
+      </div>
+
+      <div class="f-row">
+        <div class="f-lbl">75% del video</div>
+        <div class="f-track"><div class="f-bar b-${c50}" style="width:${w4}%"><span class="f-num">${fmt(ad.p75)}</span></div></div>
+        <div class="f-pct">${pct(ad.p75,ad.impressions)}%</div>
+      </div>
+
+      <div class="f-conn">
+        <div class="f-dashes"><div></div><div></div><div></div></div>
+        <div class="f-badge fb-${c75}">${icon(c75)} ${r75_100}% terminó el video</div>
+        <div class="f-conn-lbl">de los que llegaron al 75%</div>
+      </div>
+
+      <div class="f-row">
+        <div class="f-lbl">100% del video</div>
+        <div class="f-track"><div class="f-bar b-${c75}" style="width:${w5}%"><span class="f-num">${fmt(ad.p100)}</span></div></div>
+        <div class="f-pct">${pct(ad.p100,ad.impressions)}%</div>
+      </div>
+
+      <div class="f-conn">
+        <div class="f-dashes"><div></div><div></div><div></div></div>
+        <div class="f-badge fb-${cCV}">${icon(cCV)} ${rConv}% abrió WhatsApp</div>
+        <div class="f-conn-lbl">de los que terminaron el video</div>
+      </div>
+
+      <div class="f-row">
+        <div class="f-lbl">Abrió chat</div>
+        <div class="f-track"><div class="f-bar b-${cCV}" style="width:${w6}%"><span class="f-num">${fmt(ad.conversations)}</span></div></div>
+        <div class="f-pct">${pct(ad.conversations,ad.impressions)}%</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-v">${fmt(ad.conversations)}</div>
+          <div class="stat-l">Conversaciones</div>
+        </div>
+        <div class="stat">
+          <div class="stat-v">$${fmt(ad.cpl)}</div>
+          <div class="stat-l">Costo por conv.</div>
+        </div>
+        <div class="stat">
+          <div class="stat-v">${fmtSpend(ad.spend)}</div>
+          <div class="stat-l">Gasto total</div>
+        </div>
+      </div>
+
+    </div>
+  </div>`;
+}
+
+document.getElementById("grid").innerHTML = ADS.map(buildCard).join("");
+</script>
+</body>
+</html>
